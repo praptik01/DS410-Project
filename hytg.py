@@ -1,1 +1,1 @@
-hytg
+print("hello")
