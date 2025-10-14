@@ -11,7 +11,8 @@ from pyspark.sql.types import StructField, StructType, StringType, LongType, Int
 from pyspark.sql.functions import col, column
 from pyspark.sql.functions import expr
 from pyspark.sql.functions import split
-from pyspark.sql import Row 
+from pyspark.sql import Row  
+from pyspark.sql.functions import lower, avg
 
 
 
