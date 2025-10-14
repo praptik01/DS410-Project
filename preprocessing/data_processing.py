@@ -2,6 +2,7 @@ import pyspark
 import pandas as pd 
 import numpy as np 
 import math   
+import sklearn as sk 
 
 
 
@@ -15,7 +16,10 @@ from pyspark.sql import Row
 from pyspark.sql.functions import lower, avg
 from pyspark.sql.functions import Round 
 from pyspark.ml.functions import VectorAssembler 
-from pyspark.ml.feature import StandardScaler
+from pyspark.ml.feature import StandardScaler 
+from pyspark.ml.clustering import Kmeans 
+from pyspark.ml.evaluation import ClusteringEvaluator 
+from sklearn.metrics.pairwise import cosine_similarity
 
 
 
