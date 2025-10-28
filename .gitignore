@@ -1,2 +1,2 @@
 ECHO is on.
-*.csv
+pyspark/spotify_dataset.csv
