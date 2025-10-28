@@ -1,0 +1,41 @@
+import pyspark 
+import pandas as pd 
+import numpy as np 
+import math   
+import sklearn as sk 
+
+
+
+from pyspark import SparkContext
+from pyspark.sql import SparkSession
+from pyspark.sql.types import StructField, StructType, StringType, LongType, IntegerType, FloatType
+from pyspark.sql.functions import col, column
+from pyspark.sql.functions import expr
+from pyspark.sql.functions import split
+from pyspark.sql import Row  
+from pyspark.sql.functions import lower, avg
+from pyspark.sql.functions import Round 
+from pyspark.ml.functions import VectorAssembler 
+from pyspark.ml.feature import StandardScaler 
+from pyspark.ml.clustering import Kmeans 
+from pyspark.ml.evaluation import ClusteringEvaluator 
+from sklearn.metrics.pairwise import cosine_similarity
+
+
+
+ss=SparkSession.builder.master("local").appName("Spotify Playlist Generator").getOrCreate() 
+
+
+ss.sparkContext.setCheckpointDir("~/scratch") 
+
+
+
+spotify_DF = ss.read.csv("spotify_dataset.csv", header=True, inferSchema=True) 
+
+
+
+spotify_DF.printSchema() 
+
+
+spotify_DF.first() 
+
