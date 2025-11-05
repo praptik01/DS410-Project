@@ -158,16 +158,13 @@ clean_df = clean_df.fillna({
 cast_map = {
     "Energy": FloatType(),
     "Tempo": FloatType(),
-    "Loudness (db)": FloatType(),
     "Popularity": IntegerType(),
     "Liveness": FloatType(),
     "Acousticness": FloatType(),
     "Speechiness": FloatType(),
     "Danceability": FloatType(),
     "Positiveness": FloatType(),
-    "Instrumentalness": FloatType(),
-    "Time signature": IntegerType(),
-    "Explicit": BooleanType()
+    "Instrumentalness": FloatType()
 }
 for col_name, col_type in cast_map.items():
     clean_df = clean_df.withColumn(col_name, F.col(col_name).cast(col_type))
