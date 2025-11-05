@@ -144,15 +144,13 @@ clean_df = clean_df.fillna({
 clean_df = clean_df.fillna({
     "Energy": 0.0,
     "Tempo": 0.0,
-    "Loudness (db)": 0.0,
     "Popularity": 0,
     "Liveness": 0.0,
     "Acousticness": 0.0,
     "Speechiness": 0.0,
     "Danceability": 0.0,
     "Positiveness": 0.0,
-    "Instrumentalness": 0.0,
-    "Time signature": 4 
+    "Instrumentalness": 0.0
 })
 
 cast_map = {
