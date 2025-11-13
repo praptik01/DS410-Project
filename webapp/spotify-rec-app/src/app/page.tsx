@@ -3,8 +3,23 @@
 import { useEffect, useMemo, useState } from "react";
 
 type SongOption = {
+  id: string;
   title: string;
   artist: string;
+};
+
+type PredictionTrack = {
+  track_id: string;
+  song: string;
+  "Artist(s)": string;
+  mood_score?: number;
+  [key: string]: unknown;
+};
+
+type PredictionResult = {
+  predicted_mood: string;
+  mood_score: number;
+  tracks: PredictionTrack[];
 };
 
 const MIN_QUERY_LENGTH = 2;
@@ -16,7 +31,9 @@ export default function Home() {
   const [suggestionsError, setSuggestionsError] = useState<string | null>(null);
 
   const [playlist, setPlaylist] = useState<SongOption[]>([]);
-  const [predictions, setPredictions] = useState<string[]>([]);
+  const [predictionResult, setPredictionResult] = useState<
+    PredictionResult | null
+  >(null);
   const [predicting, setPredicting] = useState(false);
   const [predictionError, setPredictionError] = useState<string | null>(null);
 
@@ -69,22 +86,13 @@ export default function Home() {
     if (!suggestions.length) {
       return [];
     }
-    const taken = new Set(
-      playlist.map((entry) => `${entry.title.toLowerCase()}__${entry.artist.toLowerCase()}`),
-    );
-    return suggestions.filter((option: SongOption) => {
-      const key = `${option.title?.toLowerCase() ?? ""}__${option.artist?.toLowerCase() ?? ""}`;
-      return !taken.has(key);
-    });
+    const taken = new Set(playlist.map((entry) => entry.id));
+    return suggestions.filter((option: SongOption) => !taken.has(option.id));
   }, [suggestions, playlist]);
 
   const handleAddSong = (option: SongOption) => {
     setPlaylist((current) => {
-      const exists = current.some(
-        (entry) =>
-          entry.title.toLowerCase() === option.title.toLowerCase() &&
-          entry.artist.toLowerCase() === option.artist.toLowerCase(),
-      );
+      const exists = current.some((entry) => entry.id === option.id);
       if (exists) {
         return current;
       }
@@ -92,23 +100,19 @@ export default function Home() {
     });
     setSearchTerm("");
     setSuggestions([]);
-    setPredictions([]);
+    setPredictionResult(null);
     setPredictionError(null);
   };
 
   const handleRemoveSong = (option: SongOption) => {
     setPlaylist((current) =>
-      current.filter(
-        (entry) =>
-          entry.title.toLowerCase() !== option.title.toLowerCase() ||
-          entry.artist.toLowerCase() !== option.artist.toLowerCase(),
-      ),
+      current.filter((entry) => entry.id !== option.id),
     );
-    setPredictions([]);
     setPredictionError(null);
+    setPredictionResult(null);
   };
 
-  const handlePredict = () => {
+  const handlePredict = async () => {
     if (!playlist.length) {
       setPredictionError("Add at least one track before requesting predictions.");
       return;
@@ -116,15 +120,32 @@ export default function Home() {
 
     setPredictionError(null);
     setPredicting(true);
+    setPredictionResult(null);
 
-    setTimeout(() => {
-      const recommended = playlist.slice(0, 10).map((entry, index) => {
-        const rank = index + 1;
-        return `Track ${rank}: curated to complement "${entry.title}" by ${entry.artist || "Unknown"}`;
+    try {
+      const response = await fetch("/api/predict", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          track_ids: playlist.map((track) => track.id),
+          limit: 10,
+        }),
       });
-      setPredictions(recommended);
+
+      if (!response.ok) {
+        throw new Error("Prediction request failed");
+      }
+
+      const data = (await response.json()) as PredictionResult;
+      setPredictionResult(data);
+    } catch (error) {
+      console.error(error);
+      setPredictionError("Unable to fetch predictions. Please try again.");
+    } finally {
       setPredicting(false);
-    }, 300);
+    }
   };
 
   return (
@@ -194,9 +215,9 @@ export default function Home() {
                     </div>
                   ) : filteredSuggestions.length ? (
                     <ul className="max-h-64 space-y-2 overflow-y-auto rounded-2xl border border-white/5 bg-black/40 p-3 shadow-inner">
-                      {filteredSuggestions.map((option, index) => (
+                      {filteredSuggestions.map((option) => (
                         <li
-                          key={`${option.title}-${option.artist}-${index}`}
+                          key={option.id}
                           className="group flex items-center justify-between gap-4 rounded-[20px] border border-transparent bg-white/[0.02] px-4 py-3 text-sm transition hover:border-[#1db954]/40 hover:bg-white/[0.08]"
                         >
                           <div className="flex flex-col">
@@ -229,11 +250,11 @@ export default function Home() {
                 <div className="flex items-center gap-3">
                   <button
                     type="button"
-                    onClick={() => {
-                      setPlaylist([]);
-                      setPredictions([]);
-                      setPredictionError(null);
-                    }}
+                onClick={() => {
+                  setPlaylist([]);
+                  setPredictionResult(null);
+                  setPredictionError(null);
+                }}
                     className="inline-flex items-center justify-center rounded-full border border-white/10 px-5 py-2 text-sm font-medium text-white/80 transition hover:border-white/40 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
                     disabled={!playlist.length}
                   >
@@ -260,7 +281,7 @@ export default function Home() {
                   <ol className="space-y-2 text-sm">
                     {playlist.map((entry, index) => (
                       <li
-                        key={`${entry.title}-${entry.artist}-${index}`}
+                        key={entry.id}
                         className="flex items-center justify-between gap-4 rounded-[18px] border border-white/5 bg-white/[0.04] px-4 py-3 transition hover:border-[#1db954]/30 hover:bg-white/[0.07]"
                       >
                         <div className="flex items-center gap-4">
@@ -324,24 +345,56 @@ export default function Home() {
               ) : null}
 
               <div className="rounded-[24px] border border-[#1db954]/20 bg-black/40 p-5">
-                {predictions.length ? (
-                  <ol className="space-y-3 text-sm text-white/90">
-                    {predictions.map((item, index) => (
-                      <li
-                        key={`${item}-${index}`}
-                        className="flex items-start gap-3 rounded-[18px] border border-transparent bg-[#1db954]/10 px-4 py-3"
-                      >
-                        <span className="mt-1 inline-flex h-7 w-7 items-center justify-center rounded-full border border-[#1db954]/50 text-xs font-semibold text-[#1db954]">
-                          {index + 1}
-                        </span>
-                        <p>{item}</p>
-                      </li>
-                    ))}
-                  </ol>
+                {predictionResult ? (
+                  <div className="space-y-4 text-sm text-white/90">
+                    <div className="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-4">
+                      <p className="text-xs uppercase tracking-[0.4em] text-emerald-200">
+                        Predicted Mood
+                      </p>
+                      <p className="text-2xl font-semibold text-white">
+                        {predictionResult.predicted_mood.replaceAll("_", " ")}
+                      </p>
+                      <p className="text-xs text-emerald-100/80">
+                        Confidence: {(predictionResult.mood_score * 100).toFixed(1)}%
+                      </p>
+                    </div>
+                    {predictionResult.tracks.length ? (
+                      <ol className="space-y-3">
+                        {predictionResult.tracks.map((track, index) => (
+                          <li
+                            key={`${track.track_id}-${index}`}
+                            className="flex items-start gap-3 rounded-[18px] border border-transparent bg-[#1db954]/10 px-4 py-3"
+                          >
+                            <span className="mt-1 inline-flex h-7 w-7 items-center justify-center rounded-full border border-[#1db954]/50 text-xs font-semibold text-[#1db954]">
+                              {index + 1}
+                            </span>
+                            <div>
+                              <p className="font-semibold text-white">{track.song}</p>
+                              <p className="text-xs uppercase tracking-[0.3em] text-emerald-100/70">
+                                {track["Artist(s)"]}
+                              </p>
+                              {typeof track.mood_score === "number" ? (
+                                <p className="text-xs text-emerald-100/60">
+                                  Score: {(track.mood_score * 100).toFixed(0)}%
+                                </p>
+                              ) : null}
+                            </div>
+                          </li>
+                        ))}
+                      </ol>
+                    ) : (
+                      <p className="text-xs text-white/60">
+                        The model returned a mood but no track suggestions. Try adjusting your playlist.
+                      </p>
+                    )}
+                  </div>
                 ) : (
                   <div className="flex h-40 flex-col items-center justify-center gap-3 text-center text-sm text-white/60">
                     <span className="text-3xl text-[#1db954]">✨</span>
-                    
+                    <p>
+                      Predictions will appear here once the PySpark recommender is wired in. Use this
+                      space to validate the final flow.
+                    </p>
                   </div>
                 )}
               </div>

@@ -3,6 +3,7 @@ import path from "path";
 import { access } from "fs/promises";
 import { createReadStream } from "fs";
 import readline from "readline";
+import crypto from "crypto";
 
 async function resolveDatasetPath(filename: string) {
   let currentDir = process.cwd();
@@ -58,9 +59,25 @@ function parseCsvLine(line: string): string[] {
 }
 
 type SongResult = {
+  id: string;
   title: string;
   artist: string;
 };
+
+function normalize(value: string | undefined | null) {
+  if (!value) {
+    return "";
+  }
+  return value.toLowerCase().trim().replace(/\s+/g, " ");
+}
+
+function computeTrackId(title: string, artist: string) {
+  const normalizedTitle = normalize(title);
+  const normalizedArtist = normalize(artist);
+  const hash = crypto.createHash("sha256");
+  hash.update(`${normalizedTitle}::${normalizedArtist}`);
+  return hash.digest("hex");
+}
 
 async function loadSongMatches(
   csvPath: string,
@@ -79,6 +96,7 @@ async function loadSongMatches(
   let songIndex = -1;
   let artistIndex = -1;
   let processedHeader = false;
+  let trackIdIndex = -1;
 
   try {
     for await (const rawLine of rl) {
@@ -94,6 +112,9 @@ async function loadSongMatches(
         );
         artistIndex = header.findIndex(
           (column) => column.trim().toLowerCase() === "artist(s)",
+        );
+        trackIdIndex = header.findIndex(
+          (column) => column.trim().toLowerCase() === "track_id",
         );
         if (songIndex === -1) {
           throw new Error("Song column not found in spotify_dataset.csv");
@@ -124,7 +145,10 @@ async function loadSongMatches(
       }
 
       seen.add(identity);
-      results.push({ title, artist });
+      const trackIdFromFile =
+        trackIdIndex >= 0 ? values[trackIdIndex]?.trim() ?? "" : "";
+      const id = trackIdFromFile || computeTrackId(title, artist);
+      results.push({ id, title, artist });
 
       if (results.length >= limit) {
         break;
