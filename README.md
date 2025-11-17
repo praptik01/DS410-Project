@@ -42,22 +42,11 @@ PySpark 4.0 ships class files compiled for Java 17. Every time you run the Fast
 ```bash
 export JAVA_HOME=/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home
 export PATH="$JAVA_HOME/bin:$PATH"
+uvicorn app:app --host 127.0.0.1 --port 8000
 ```
-
 Add those two lines to your `~/.zshrc` or shell profile so new terminals inherit them. Verify with `java -version`; you should see `openjdk version "17.x"`.
 
 If you see `UnsupportedClassVersionError`, it means the shell running `uvicorn` is still using Java 11.
-
----
-
-## 3. Start the model service
-
-From the repo root:
-
-```bash
-source .venv/bin/activate            # if not already active
-export JAVA_HOME=… && export PATH=…  # if not in your shell profile
-uvicorn app:app --host 127.0.0.1 --port 8000
 ```
 
 Notes:
