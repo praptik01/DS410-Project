@@ -448,7 +448,7 @@ def _initialize_model():
       # Study
        .when(
             (low("Energy") | med("Energy")) &
-            between("Tempo", 50, 90) &
+            between("Tempo", 50, 100) &
             low("Loudness") &
             none_rx("genre_norm", r"(pop|hip ?hop|rap|edm|house|fast)") &
             any_rx("genre_norm", r"(indie|alt ?pop|lo[- ]?fi|jazz)") &
@@ -481,7 +481,7 @@ def _initialize_model():
       # Road trip
        .when(
             (med("Energy") | high("Energy")) &
-            between("Tempo", 60, 100) &
+            between("Tempo", 70, 100) &
             (med("Loudness") | high("Loudness")) &
             (med("Popularity") | (F.col("Popularity") >= POP_HIGH)) &
             (med("Liveness") | high("Liveness")) &
@@ -524,7 +524,7 @@ def _initialize_model():
       # 2010s Pop Hits
        .when(
             (med("Energy") | high("Energy")) &
-            between("Tempo", 80, 130) &
+            between("Tempo", 90, 120) &
             (med("Loudness") | high("Loudness")) &
             (F.col("Popularity") >= POP_HIGH) &
             (med("Liveness") | high("Liveness")),
@@ -543,7 +543,7 @@ def _initialize_model():
       # Vintage classics 
        .when(
             med("Energy") &
-            between("Tempo", 60, 130) &
+            between("Tempo", 60, 170) &
             (med("Loudness") | high("Loudness")) &
             (F.col("Popularity") >= POP_HIGH) &
             (med("Liveness") | high("Liveness")) &
@@ -582,7 +582,7 @@ def _initialize_model():
       # Autumn cozy
        .when(
             (low("Energy") | med("Energy")) &
-            between("Tempo", 60, 80) &
+            between("Tempo", 60, 100) &
             med("Loudness") &
             (low("Danceability") | med("Danceability")) &
             (F.col("Popularity") >= POP_MED),
@@ -592,7 +592,7 @@ def _initialize_model():
       # Campfire nights
        .when(
             med("Energy") &
-            between("Tempo", 110, 130) &
+            between("Tempo", 60, 100) &
             (med("Loudness") | high("Loudness")) &
             (med("Popularity") | (F.col("Popularity") >= POP_HIGH)) &
             (med("Liveness") | high("Liveness")) &
@@ -635,7 +635,7 @@ def _initialize_model():
       # Villain arc gym music
        .when(
             high("Energy") &
-            between("Tempo", 110, 150) &
+            between("Tempo", 100, 160) &
             high("Loudness") &
             (med("Popularity") | (F.col("Popularity") >= POP_HIGH)) &
             (med("Liveness") | high("Liveness")) &
@@ -649,7 +649,7 @@ def _initialize_model():
       # I’m unbothered era (sassy)
        .when(
             high("Energy") &
-            between("Tempo", 100, 130) &
+            between("Tempo", 90, 130) &
             high("Loudness") &
             (med("Popularity") | (F.col("Popularity") >= POP_HIGH)) &
             (med("Liveness") | high("Liveness")) &
@@ -663,7 +663,7 @@ def _initialize_model():
       # Slow morning
        .when(
             (low("Energy") | med("Energy")) &
-            between("Tempo", 60, 80) &
+            between("Tempo", 50, 80) &
             (low("Loudness") | med("Loudness")) &
             (low("Liveness") | med("Liveness")) &
             high("Acousticness") &
@@ -677,7 +677,7 @@ def _initialize_model():
       # Post breakup depressed
        .when(
             low("Energy") &
-            between("Tempo", 60, 100) &
+            between("Tempo", 60, 140) &
             (low("Loudness") | med("Loudness")),
             F.lit("Post Breakup Depressed")
        )
@@ -697,7 +697,7 @@ def _initialize_model():
 
       # Hot girl walk
        .when(
-            between("Tempo", 60, 130) &
+            between("Tempo", 80, 130) &
             med("Loudness") &
             (med("Popularity") | (F.col("Popularity") >= POP_HIGH)) &
             high("Liveness") &
@@ -713,7 +713,7 @@ def _initialize_model():
       # Main character energy
        .when(
             high("Energy") &
-            between("Tempo", 70, 100) &
+            between("Tempo", 70, 130) &
             low("Loudness") &
             (med("Popularity") | (F.col("Popularity") >= POP_HIGH)) &
             (med("Liveness") | high("Liveness")) &
@@ -727,7 +727,7 @@ def _initialize_model():
       # Dream / escapist
        .when(
             low("Energy") &
-            between("Tempo", 100, 130) &
+            between("Tempo", 60, 100) &
             high("Loudness") &
             any_rx("genre_norm", r"(experimental|psychedelic|psychedelic rock|dream ?pop)") &
             (F.col("Popularity") >= POP_MED) &
@@ -984,29 +984,29 @@ def _initialize_model():
         "sad_girl_autumn": {
             "hard_filters": [
                 F.col("soft_label").isin("low_energy", "medium_energy"),
-                (F.col("Tempo") >= 60) & (F.col("Tempo") <= 100),
+                (F.col("Tempo") >= 40) & (F.col("Tempo") <= 80),
                 ~F.col("is_pop") & ~F.col("is_hiphop"),
                 (F.col("is_explicit") == False),
             ],
             "targets": {
-                "energy_proxy":   0.35,
-                "tempo_proxy":    0.35,
-                "loud_proxy":     0.3,
+                "energy_proxy":   0.5,
+                "tempo_proxy":    0.6,
+                "loud_proxy":     0.4,
                 "dance_proxy":    0.25,
                 "acoustic_proxy": 0.8,
                 "speech_proxy":   0.2,
                 "live_proxy":     0.3,
-                "valence_proxy":  0.2,
+                "valence_proxy":  0.4,
             },
             "weights": {
-                "energy_proxy":   1.0,
+                "energy_proxy":   0.5,
                 "acoustic_proxy": 1.0,
-                "valence_proxy":  1.0,
+                "valence_proxy":  0.3,
                 "tempo_proxy":    0.7,
                 "dance_proxy":    0.6,
                 "loud_proxy":     0.5,
                 "speech_proxy":   0.4,
-                "live_proxy":     0.3,
+                "live_proxy":     0.4,
             },
         },
 
@@ -1014,25 +1014,25 @@ def _initialize_model():
         "study": {
             "hard_filters": [
                 F.col("soft_label").isin("low_energy", "medium_energy"),
-                (F.col("Tempo") >= 50) & (F.col("Tempo") <= 90),
+                (F.col("Tempo") >= 50) & (F.col("Tempo") <= 100),
                 (F.col("is_explicit") == False),
                 ~F.col("is_hiphop"),
             ],
             "targets": {
-                "energy_proxy":   0.3,
-                "tempo_proxy":    0.3,
-                "loud_proxy":     0.2,
-                "dance_proxy":    0.2,
-                "acoustic_proxy": 0.8,
-                "speech_proxy":   0.1,
-                "live_proxy":     0.2,
-                "valence_proxy":  0.3,
+                "energy_proxy":   0.5,
+                "tempo_proxy":    0.5,
+                "loud_proxy":     0.5,
+                "dance_proxy":    0.3,
+                "acoustic_proxy": 0.5,
+                "speech_proxy":   0.5,
+                "live_proxy":     0.5,
+                "valence_proxy":  0.5,
             },
             "weights": {
-                "acoustic_proxy": 1.0,
-                "speech_proxy":   1.0,
+                "acoustic_proxy": 0.6,
+                "speech_proxy":   0.5,
                 "energy_proxy":   0.9,
-                "tempo_proxy":    0.8,
+                "tempo_proxy":    0.6,
                 "loud_proxy":     0.6,
                 "dance_proxy":    0.5,
                 "valence_proxy":  0.4,
@@ -1044,7 +1044,7 @@ def _initialize_model():
         "throwbacks_2000s": {
             "hard_filters": [
                 F.col("soft_label").isin("high_energy", "medium_energy"),
-                (F.col("Tempo") >= 80) & (F.col("Tempo") <= 130),
+                (F.col("Tempo") >= 70) & (F.col("Tempo") <= 130),
                 (F.col("year") >= 2000) & (F.col("year") <= 2009),
                 (F.col("is_pop") | F.col("is_hiphop") | F.col("is_rock")),
                 (F.col("Popularity") >= 40),
@@ -1055,7 +1055,7 @@ def _initialize_model():
                 "loud_proxy":     0.8,
                 "dance_proxy":    0.8,
                 "acoustic_proxy": 0.3,
-                "speech_proxy":   0.4,
+                "speech_proxy":   0.5,
                 "live_proxy":     0.6,
                 "valence_proxy":  0.6,
             },
@@ -1106,7 +1106,7 @@ def _initialize_model():
         "road_trip": {
             "hard_filters": [
                 F.col("soft_label").isin("medium_energy", "high_energy"),
-                (F.col("Tempo") >= 60) & (F.col("Tempo") <= 100),
+                (F.col("Tempo") >= 70) & (F.col("Tempo") <= 100),
                 (F.col("Popularity") >= 30),
             ],
             "targets": {
@@ -1127,7 +1127,7 @@ def _initialize_model():
                 "loud_proxy":     0.7,
                 "live_proxy":     0.5,
                 "acoustic_proxy": 0.3,
-                "speech_proxy":   0.3,
+                "speech_proxy":   0.5,
             },
         },
 
@@ -1143,16 +1143,16 @@ def _initialize_model():
                 "tempo_proxy":    0.3,
                 "loud_proxy":     0.3,
                 "dance_proxy":    0.3,
-                "acoustic_proxy": 0.8,
+                "acoustic_proxy": 0.7,
                 "speech_proxy":   0.2,
                 "live_proxy":     0.2,
-                "valence_proxy":  0.3,
+                "valence_proxy":  0.5,
             },
             "weights": {
-                "acoustic_proxy": 1.0,
+                "acoustic_proxy": 0.8,
                 "energy_proxy":   0.8,
                 "tempo_proxy":    0.7,
-                "valence_proxy":  0.5,
+                "valence_proxy":  0.6,
                 "dance_proxy":    0.4,
                 "loud_proxy":     0.4,
                 "speech_proxy":   0.3,
@@ -1173,9 +1173,9 @@ def _initialize_model():
                 "loud_proxy":     0.5,
                 "dance_proxy":    0.6,
                 "acoustic_proxy": 0.7,
-                "speech_proxy":   0.7,
+                "speech_proxy":   0.8,
                 "live_proxy":     0.6,
-                "valence_proxy":  0.7,
+                "valence_proxy":  0.6,
             },
             "weights": {
                 "speech_proxy":   1.0,
@@ -1194,7 +1194,7 @@ def _initialize_model():
             "hard_filters": [
                 (F.col("year") >= 2010) & (F.col("year") <= 2019),
                 (F.col("is_pop") | F.col("is_rock") | F.col("is_hiphop")),
-                (F.col("Tempo") >= 80) & (F.col("Tempo") <= 130),
+                (F.col("Tempo") >= 90) & (F.col("Tempo") <= 120),
                 (F.col("Popularity") >= 50),
             ],
             "targets": {
@@ -1203,7 +1203,7 @@ def _initialize_model():
                 "loud_proxy":     0.8,
                 "dance_proxy":    0.7,
                 "acoustic_proxy": 0.3,
-                "speech_proxy":   0.4,
+                "speech_proxy":   0.5,
                 "live_proxy":     0.7,
                 "valence_proxy":  0.7,
             },
@@ -1233,7 +1233,7 @@ def _initialize_model():
                 "tempo_proxy":    0.8,
                 "loud_proxy":     0.9,
                 "dance_proxy":    0.7,
-                "acoustic_proxy": 0.4,
+                "acoustic_proxy": 0.6,
                 "speech_proxy":   0.5,
                 "live_proxy":     0.8,
                 "valence_proxy":  0.3,
@@ -1245,7 +1245,7 @@ def _initialize_model():
                 "tempo_proxy":    0.8,
                 "dance_proxy":    0.6,
                 "speech_proxy":   0.4,
-                "acoustic_proxy": 0.3,
+                "acoustic_proxy": 0.6,
                 "valence_proxy":  0.3,
             },
         },
@@ -1257,8 +1257,8 @@ def _initialize_model():
                 (F.col("Popularity") >= 40),
             ],
             "targets": {
-                "energy_proxy":   0.6,
-                "tempo_proxy":    0.6,
+                "energy_proxy":   0.7,
+                "tempo_proxy":    0.7,
                 "loud_proxy":     0.7,
                 "dance_proxy":    0.8,
                 "acoustic_proxy": 0.7,
@@ -1268,7 +1268,7 @@ def _initialize_model():
             },
             "weights": {
                 "dance_proxy":    1.0,
-                "valence_proxy":  0.9,
+                "valence_proxy":  0.6,
                 "live_proxy":     0.8,
                 "acoustic_proxy": 0.7,
                 "energy_proxy":   0.7,
@@ -1292,16 +1292,16 @@ def _initialize_model():
                 "dance_proxy":    0.7,
                 "acoustic_proxy": 0.7,
                 "speech_proxy":   0.7,
-                "live_proxy":     0.8,
+                "live_proxy":     0.7,
                 "valence_proxy":  0.9,
             },
             "weights": {
                 "valence_proxy":  1.0,
-                "live_proxy":     0.9,
+                "live_proxy":     0.7,
                 "speech_proxy":   0.8,
                 "acoustic_proxy": 0.7,
-                "dance_proxy":    0.7,
-                "energy_proxy":   0.6,
+                "dance_proxy":    0.8,
+                "energy_proxy":   0.7,
                 "tempo_proxy":    0.5,
                 "loud_proxy":     0.5,
             },
@@ -1321,7 +1321,7 @@ def _initialize_model():
                 "dance_proxy":    0.9,
                 "acoustic_proxy": 0.3,
                 "speech_proxy":   0.6,
-                "live_proxy":     0.8,
+                "live_proxy":     0.6,
                 "valence_proxy":  0.9,
             },
             "weights": {
@@ -1340,14 +1340,14 @@ def _initialize_model():
         "autumn_cozy": {
             "hard_filters": [
                 F.col("soft_label").isin("low_energy", "medium_energy"),
-                (F.col("Tempo") >= 60) & (F.col("Tempo") <= 80),
+                (F.col("Tempo") >= 60) & (F.col("Tempo") <= 100),
             ],
             "targets": {
                 "energy_proxy":   0.4,
                 "tempo_proxy":    0.35,
                 "loud_proxy":     0.4,
                 "dance_proxy":    0.4,
-                "acoustic_proxy": 0.6,
+                "acoustic_proxy": 0.7,
                 "speech_proxy":   0.3,
                 "live_proxy":     0.5,
                 "valence_proxy":  0.5,
@@ -1355,7 +1355,7 @@ def _initialize_model():
             "weights": {
                 "energy_proxy":   0.9,
                 "tempo_proxy":    0.8,
-                "acoustic_proxy": 0.7,
+                "acoustic_proxy": 0.8,
                 "valence_proxy":  0.6,
                 "live_proxy":     0.5,
                 "dance_proxy":    0.4,
@@ -1367,13 +1367,13 @@ def _initialize_model():
         # 14. Campfire nights
         "campfire_nights": {
             "hard_filters": [
-                (F.col("Tempo") >= 110) & (F.col("Tempo") <= 130),
+                (F.col("Tempo") >= 60) & (F.col("Tempo") <= 100),
                 (F.col("Popularity") >= 30),
             ],
             "targets": {
                 "energy_proxy":   0.6,
                 "tempo_proxy":    0.6,
-                "loud_proxy":     0.7,
+                "loud_proxy":     0.5,
                 "dance_proxy":    0.6,
                 "acoustic_proxy": 0.8,
                 "speech_proxy":   0.6,
@@ -1406,7 +1406,7 @@ def _initialize_model():
                 "dance_proxy":    0.3,
                 "acoustic_proxy": 0.8,
                 "speech_proxy":   0.2,
-                "live_proxy":     0.4,
+                "live_proxy":     0.6,
                 "valence_proxy":  0.5,
             },
             "weights": {
@@ -1416,7 +1416,7 @@ def _initialize_model():
                 "tempo_proxy":    0.7,
                 "loud_proxy":     0.5,
                 "dance_proxy":    0.4,
-                "live_proxy":     0.4,
+                "live_proxy":     0.5,
                 "speech_proxy":   0.3,
             },
         },
@@ -1429,7 +1429,7 @@ def _initialize_model():
                 (F.col("Tempo") >= 70) & (F.col("Tempo") <= 100),
             ],
             "targets": {
-                "energy_proxy":   0.3,
+                "energy_proxy":   0.4,
                 "tempo_proxy":    0.4,
                 "loud_proxy":     0.4,
                 "dance_proxy":    0.2,
@@ -1454,7 +1454,7 @@ def _initialize_model():
         "villain_arc_gym": {
             "hard_filters": [
                 F.col("soft_label") == "high_energy",
-                (F.col("Tempo") >= 110) & (F.col("Tempo") <= 150),
+                (F.col("Tempo") >= 100) & (F.col("Tempo") <= 160),
             ],
             "targets": {
                 "energy_proxy":   0.95,
@@ -1464,16 +1464,16 @@ def _initialize_model():
                 "acoustic_proxy": 0.2,
                 "speech_proxy":   0.6,
                 "live_proxy":     0.6,
-                "valence_proxy":  0.5,
+                "valence_proxy":  0.7,
             },
             "weights": {
-                "energy_proxy":   1.2,
+                "energy_proxy":   1.0,
                 "tempo_proxy":    1.0,
                 "loud_proxy":     1.0,
                 "dance_proxy":    0.9,
                 "speech_proxy":   0.6,
                 "live_proxy":     0.5,
-                "valence_proxy":  0.3,
+                "valence_proxy":  0.5,
                 "acoustic_proxy": 0.2,
             },
         },
@@ -1482,7 +1482,7 @@ def _initialize_model():
         "unbothered_sassy": {
             "hard_filters": [
                 (F.col("soft_label") == "high_energy"),
-                (F.col("Tempo") >= 100) & (F.col("Tempo") <= 130),
+                (F.col("Tempo") >= 90) & (F.col("Tempo") <= 130),
                 (F.col("Popularity") >= 40),
             ],
             "targets": {
@@ -1492,7 +1492,7 @@ def _initialize_model():
                 "dance_proxy":    0.9,
                 "acoustic_proxy": 0.3,
                 "speech_proxy":   0.7,
-                "live_proxy":     0.7,
+                "live_proxy":     0.5,
                 "valence_proxy":  0.9,
             },
             "weights": {
@@ -1502,7 +1502,7 @@ def _initialize_model():
                 "tempo_proxy":    0.8,
                 "loud_proxy":     0.8,
                 "speech_proxy":   0.7,
-                "live_proxy":     0.6,
+                "live_proxy":     0.4,
                 "acoustic_proxy": 0.3,
             },
         },
@@ -1510,7 +1510,7 @@ def _initialize_model():
         # 19. Slow morning
         "slow_morning": {
             "hard_filters": [
-                (F.col("Tempo") >= 60) & (F.col("Tempo") <= 80),
+                (F.col("Tempo") >= 50) & (F.col("Tempo") <= 80),
                 F.col("soft_label").isin("low_energy", "medium_energy"),
                 (F.col("Popularity") >= 30),
             ],
@@ -1520,9 +1520,9 @@ def _initialize_model():
                 "loud_proxy":     0.3,
                 "dance_proxy":    0.2,
                 "acoustic_proxy": 0.8,
-                "speech_proxy":   0.3,
+                "speech_proxy":   0.4,
                 "live_proxy":     0.4,
-                "valence_proxy":  0.4,
+                "valence_proxy":  0.5,
             },
             "weights": {
                 "acoustic_proxy": 1.0,
@@ -1540,17 +1540,17 @@ def _initialize_model():
         "post_breakup_depressed": {
             "hard_filters": [
                 F.col("soft_label") == "low_energy",
-                (F.col("Tempo") >= 60) & (F.col("Tempo") <= 100),
+                (F.col("Tempo") >= 60) & (F.col("Tempo") <= 140),
             ],
             "targets": {
-                "energy_proxy":   0.25,
-                "tempo_proxy":    0.35,
-                "loud_proxy":     0.3,
-                "dance_proxy":    0.2,
+                "energy_proxy":   0.5,
+                "tempo_proxy":    0.5,
+                "loud_proxy":     0.5,
+                "dance_proxy":    0.4,
                 "acoustic_proxy": 0.7,
-                "speech_proxy":   0.3,
+                "speech_proxy":   0.7,
                 "live_proxy":     0.4,
-                "valence_proxy":  0.2,
+                "valence_proxy":  0.9,
             },
             "weights": {
                 "valence_proxy":  1.0,
@@ -1558,8 +1558,8 @@ def _initialize_model():
                 "tempo_proxy":    0.7,
                 "acoustic_proxy": 0.6,
                 "dance_proxy":    0.4,
-                "loud_proxy":     0.4,
-                "speech_proxy":   0.3,
+                "loud_proxy":     0.5,
+                "speech_proxy":   0.7,
                 "live_proxy":     0.3,
             },
         },
@@ -1595,12 +1595,12 @@ def _initialize_model():
         # 22. Hot girl walk
         "hot_girl_walk": {
             "hard_filters": [
-                (F.col("Tempo") >= 60) & (F.col("Tempo") <= 130),
+                (F.col("Tempo") >= 80) & (F.col("Tempo") <= 130),
                 (F.col("Popularity") >= 40),
             ],
             "targets": {
-                "energy_proxy":   0.6,
-                "tempo_proxy":    0.6,
+                "energy_proxy":   0.7,
+                "tempo_proxy":    0.7,
                 "loud_proxy":     0.6,
                 "dance_proxy":    0.7,
                 "acoustic_proxy": 0.4,
@@ -1624,12 +1624,12 @@ def _initialize_model():
         "main_character_energy": {
             "hard_filters": [
                 F.col("soft_label") == "high_energy",
-                (F.col("Tempo") >= 70) & (F.col("Tempo") <= 100),
+                (F.col("Tempo") >= 70) & (F.col("Tempo") <= 130),
                 (F.col("Popularity") >= 40),
             ],
             "targets": {
                 "energy_proxy":   0.8,
-                "tempo_proxy":    0.5,
+                "tempo_proxy":    0.7,
                 "loud_proxy":     0.7,
                 "dance_proxy":    0.8,
                 "acoustic_proxy": 0.4,
@@ -1653,7 +1653,7 @@ def _initialize_model():
         "dream_escapist": {
             "hard_filters": [
                 (F.col("soft_label") == "low_energy"),
-                (F.col("Tempo") >= 100) & (F.col("Tempo") <= 130),
+                (F.col("Tempo") >= 60) & (F.col("Tempo") <= 100),
                 (F.col("is_exper") | F.col("is_rock") | F.col("is_indie")),
             ],
             "targets": {
