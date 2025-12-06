@@ -432,7 +432,7 @@ def _initialize_model():
       # Sad girl autumn
        .when(
             (low("Energy") | med("Energy")) &
-            between("Tempo", 60, 100) &
+            between("Tempo", 40, 80) &
             (low("Loudness") | med("Loudness")) &
             none_rx("genre_norm", r"(pop|hip ?hop|rap|edm|house|fast)") &
             any_rx("genre_norm", r"(indie|alt|folk)") &
